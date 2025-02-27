@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import {
@@ -18,6 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import ApplicationDetailsModal from "./ApplicationDetailsModal";
+import { Eye } from "lucide-react";
 
 type CriteriaStatus = "APTO" | "NAO_SE_APLICA" | "";
 type ApplicationStatus = "DEFERIDO" | "DEFERIDO_COM_RESSALVAS" | "INDEFERIDO";
@@ -35,6 +36,25 @@ interface Application {
   item2514: CriteriaStatus;
   status: ApplicationStatus;
   divergences: string;
+  cpf: string;
+  birthDate: string;
+  race: string;
+  phone: string;
+  email: string;
+  cep: string;
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  cultureMakerName: string;
+  cultureHistory: string;
+  traditionalKnowledge: string;
+  diversityValue: string;
+  images: string[];
+  video: string;
+  illiterateVideo: string;
 }
 
 const AdminPanel = () => {
@@ -52,11 +72,35 @@ const AdminPanel = () => {
       item2514: "",
       status: "DEFERIDO",
       divergences: "",
+      cpf: "123.456.789-00",
+      birthDate: "01/01/1990",
+      race: "Parda",
+      phone: "(84) 99999-9999",
+      email: "joao@example.com",
+      cep: "59000-000",
+      street: "Rua Principal",
+      number: "123",
+      neighborhood: "Centro",
+      city: "Poço Branco",
+      state: "RN",
+      cultureMakerName: "Grupo Musical João Silva",
+      cultureHistory: "História cultural do artista...",
+      traditionalKnowledge: "Conhecimentos tradicionais...",
+      diversityValue: "Valorização da diversidade...",
+      images: [
+        "https://example.com/image1.jpg",
+        "https://example.com/image2.jpg",
+      ],
+      video: "https://example.com/video.mp4",
+      illiterateVideo: "https://example.com/video2.mp4",
     },
-    // Add more mock data as needed
   ]);
 
-  // Novo estado para armazenar alterações pendentes
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(
+    null
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [pendingChanges, setPendingChanges] = useState<{
     [key: string]: Partial<Application>;
   }>({});
@@ -85,7 +129,6 @@ const AdminPanel = () => {
       )
     );
 
-    // Limpa as alterações pendentes para esta aplicação
     setPendingChanges((prev) => {
       const newPending = { ...prev };
       delete newPending[applicationId];
@@ -103,6 +146,11 @@ const AdminPanel = () => {
     return (
       (pendingChanges[applicationId]?.[field] as string) || originalValue
     );
+  };
+
+  const openApplicationDetails = (application: Application) => {
+    setSelectedApplication(application);
+    setIsModalOpen(true);
   };
 
   return (
@@ -355,7 +403,15 @@ const AdminPanel = () => {
                       </SelectContent>
                     </Select>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="space-x-2">
+                    <Button
+                      onClick={() => openApplicationDetails(application)}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Eye className="w-4 h-4 mr-1" />
+                      Detalhes
+                    </Button>
                     <Button
                       onClick={() => saveChanges(application.id)}
                       variant="outline"
@@ -375,6 +431,12 @@ const AdminPanel = () => {
           </Table>
         </div>
       </Card>
+      
+      <ApplicationDetailsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        application={selectedApplication}
+      />
     </div>
   );
 };
