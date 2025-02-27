@@ -1,9 +1,10 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 export default defineConfig({
-  base: "/cultural-signup-hub/", // Nome do repositório no GitHub Pages
+  base: "/",  // Removendo o subdiretório para corrigir o roteamento
   server: {
     host: "::",
     port: 8080,
