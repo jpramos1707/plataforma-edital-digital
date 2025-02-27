@@ -1,0 +1,28 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Redirecionando...</title>
+  <script type="text/javascript">
+    // Redireciona para a página principal, mantendo o caminho após o baseUrl
+    var pathSegmentsToKeep = 1; // Mantém apenas o segmento após o domínio (cultural-signup-hub)
+    var l = window.location;
+    var segments = l.pathname.split('/').filter(Boolean);
+    var newPath = segments.slice(0, pathSegmentsToKeep).join('/') + '/';
+    
+    // Se houver segmentos após o baseUrl, adiciona-os ao caminho
+    if (segments.length > pathSegmentsToKeep) {
+      newPath += '?' + segments.slice(pathSegmentsToKeep).join('/');
+    }
+    
+    l.replace(
+      l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+      '/' + newPath + l.search
+    );
+  </script>
+</head>
+<body>
+  Redirecionando...
+</body>
+</html>

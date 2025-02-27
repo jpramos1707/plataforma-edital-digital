@@ -5,7 +5,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  base: "/",  // Removendo o subdiretório para corrigir o roteamento
+  base: "/cultural-signup-hub/",  // Adicionando o nome do repositório para GitHub Pages
   server: {
     host: "::",
     port: 8080,
