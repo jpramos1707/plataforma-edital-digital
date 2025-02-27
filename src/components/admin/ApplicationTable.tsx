@@ -9,7 +9,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
 import { CriteriaSelect } from "./CriteriaSelect";
 
 interface ApplicationTableProps {
@@ -160,7 +159,6 @@ export const ApplicationTable = ({
                 variant="outline"
                 size="sm"
               >
-                <Eye className="w-4 h-4 mr-1" />
                 Detalhes
               </Button>
               <Button
