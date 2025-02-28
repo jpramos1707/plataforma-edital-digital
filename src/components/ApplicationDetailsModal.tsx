@@ -28,8 +28,8 @@ interface ApplicationDetails {
   traditionalKnowledge: string;
   diversityValue: string;
   images: string[];
-  video: string;
-  illiterateVideo: string;
+  video: string | File;
+  illiterateVideo: string | File;
 }
 
 interface ApplicationDetailsModalProps {
@@ -163,13 +163,17 @@ const ApplicationDetailsModal = ({
               <div>
                 <h4 className="font-semibold mb-2">Vídeo de Apresentação</h4>
                 {application.video ? (
-                  <video
-                    controls
-                    className="w-full rounded-lg"
-                    src={application.video}
-                  >
-                    Seu navegador não suporta o elemento de vídeo.
-                  </video>
+                  typeof application.video === 'string' ? (
+                    <video
+                      controls
+                      className="w-full rounded-lg"
+                      src={application.video}
+                    >
+                      Seu navegador não suporta o elemento de vídeo.
+                    </video>
+                  ) : (
+                    <p>Vídeo carregado, mas ainda não enviado ao servidor</p>
+                  )
                 ) : (
                   <p>Vídeo não disponível</p>
                 )}
@@ -178,13 +182,17 @@ const ApplicationDetailsModal = ({
               <div>
                 <h4 className="font-semibold mb-2">Vídeo Complementar</h4>
                 {application.illiterateVideo ? (
-                  <video
-                    controls
-                    className="w-full rounded-lg"
-                    src={application.illiterateVideo}
-                  >
-                    Seu navegador não suporta o elemento de vídeo.
-                  </video>
+                  typeof application.illiterateVideo === 'string' ? (
+                    <video
+                      controls
+                      className="w-full rounded-lg"
+                      src={application.illiterateVideo}
+                    >
+                      Seu navegador não suporta o elemento de vídeo.
+                    </video>
+                  ) : (
+                    <p>Vídeo carregado, mas ainda não enviado ao servidor</p>
+                  )
                 ) : (
                   <p>Vídeo complementar não disponível</p>
                 )}

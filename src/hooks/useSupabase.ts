@@ -2,6 +2,47 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Application, CriteriaStatus, ApplicationStatus } from "@/types/application";
 
+interface ApplicationTable {
+  id: string;
+  name: string;
+  cultural_category: string;
+  criteria_a: string;
+  criteria_b: string;
+  criteria_c: string;
+  criteria_d: string;
+  criteria_e: string;
+  criteria_f: string;
+  item_2514: string;
+  status: string;
+  divergences: string;
+  cpf: string;
+  birth_date: string;
+  race: string;
+  phone: string;
+  email: string;
+  cep: string;
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  culture_maker_name: string;
+  culture_history: string;
+  traditional_knowledge: string;
+  diversity_value: string;
+  video: string;
+  illiterate_video: string;
+  created_at: string;
+}
+
+interface ApplicationImage {
+  id: string;
+  application_id: string;
+  image_url: string;
+  created_at: string;
+}
+
 export const useSupabase = () => {
   // Função para fazer upload de um arquivo para o Supabase Storage
   const uploadFile = async (file: File, path: string): Promise<string> => {
@@ -52,7 +93,7 @@ export const useSupabase = () => {
       
       // Inserir aplicação no banco de dados
       const { data, error } = await supabase
-        .from('applications')
+        .from<ApplicationTable>('applications')
         .insert({
           name: application.name,
           cultural_category: application.culturalCategory,
@@ -83,7 +124,7 @@ export const useSupabase = () => {
           diversity_value: application.diversityValue,
           video: videoUrl,
           illiterate_video: illiterateVideoUrl
-        })
+        } as any)
         .select('id')
         .single();
         
@@ -104,8 +145,8 @@ export const useSupabase = () => {
         }));
         
         const { error: imageError } = await supabase
-          .from('application_images')
-          .insert(imageData);
+          .from<ApplicationImage>('application_images')
+          .insert(imageData as any);
           
         if (imageError) {
           console.error('Erro ao salvar imagens:', imageError);
@@ -124,7 +165,7 @@ export const useSupabase = () => {
   const fetchApplications = async (): Promise<Application[]> => {
     try {
       const { data, error } = await supabase
-        .from('applications')
+        .from<ApplicationTable>('applications')
         .select('*')
         .order('created_at', { ascending: false });
         
@@ -141,7 +182,7 @@ export const useSupabase = () => {
       const applications = await Promise.all(
         data.map(async (app) => {
           const { data: imageData, error: imageError } = await supabase
-            .from('application_images')
+            .from<ApplicationImage>('application_images')
             .select('image_url')
             .eq('application_id', app.id);
             
@@ -166,7 +207,7 @@ export const useSupabase = () => {
   const fetchApplicationById = async (id: string): Promise<Application> => {
     try {
       const { data, error } = await supabase
-        .from('applications')
+        .from<ApplicationTable>('applications')
         .select('*')
         .eq('id', id)
         .single();
@@ -182,7 +223,7 @@ export const useSupabase = () => {
       
       // Buscar imagens da aplicação
       const { data: imageData, error: imageError } = await supabase
-        .from('application_images')
+        .from<ApplicationImage>('application_images')
         .select('image_url')
         .eq('application_id', id);
         
@@ -203,7 +244,7 @@ export const useSupabase = () => {
   const updateApplication = async (id: string, updates: Partial<Application>): Promise<void> => {
     try {
       const { error } = await supabase
-        .from('applications')
+        .from<ApplicationTable>('applications')
         .update({
           criteria_a: updates.criteriaA,
           criteria_b: updates.criteriaB,
@@ -214,7 +255,7 @@ export const useSupabase = () => {
           item_2514: updates.item2514,
           status: updates.status,
           divergences: updates.divergences
-        })
+        } as any)
         .eq('id', id);
         
       if (error) {
@@ -228,7 +269,7 @@ export const useSupabase = () => {
   };
 
   // Função auxiliar para mapear dados do banco para o formato da aplicação
-  const mapDatabaseToApplication = (dbData: any, images: string[]): Application => {
+  const mapDatabaseToApplication = (dbData: ApplicationTable, images: string[]): Application => {
     return {
       id: dbData.id,
       name: dbData.name,
