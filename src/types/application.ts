@@ -32,6 +32,6 @@ export interface Application {
   traditionalKnowledge: string;
   diversityValue: string;
   images: string[];
-  video: string;
-  illiterateVideo: string;
+  video: string | File;
+  illiterateVideo: string | File;
 }

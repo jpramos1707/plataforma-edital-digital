@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSupabase } from "@/hooks/useSupabase";
+import { CriteriaStatus } from "@/types/application";
 
 const formSchema = z.object({
   fullName: z.string().min(3, "Nome completo é obrigatório"),
@@ -103,13 +104,13 @@ const RegistrationForm = () => {
       const applicationData = {
         name: data.fullName,
         culturalCategory: data.culturalCategory,
-        criteriaA: "",
-        criteriaB: "",
-        criteriaC: "",
-        criteriaD: "",
-        criteriaE: "",
-        criteriaF: "",
-        item2514: "",
+        criteriaA: "" as CriteriaStatus,
+        criteriaB: "" as CriteriaStatus,
+        criteriaC: "" as CriteriaStatus,
+        criteriaD: "" as CriteriaStatus,
+        criteriaE: "" as CriteriaStatus,
+        criteriaF: "" as CriteriaStatus,
+        item2514: "" as CriteriaStatus,
         status: "DEFERIDO" as const,
         divergences: "",
         cpf: data.cpf,

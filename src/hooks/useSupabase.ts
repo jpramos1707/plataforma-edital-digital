@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Application } from "@/types/application";
+import { Application, CriteriaStatus, ApplicationStatus } from "@/types/application";
 
 export const useSupabase = () => {
   // Função para fazer upload de um arquivo para o Supabase Storage
@@ -40,14 +40,14 @@ export const useSupabase = () => {
       
       // Upload do vídeo principal, se existir
       let videoUrl = '';
-      if (application.video instanceof File) {
-        videoUrl = await uploadFile(application.video, 'videos');
+      if (typeof application.video === 'object' && application.video !== null) {
+        videoUrl = await uploadFile(application.video as File, 'videos');
       }
       
       // Upload do vídeo de analfabetos, se existir
       let illiterateVideoUrl = '';
-      if (application.illiterateVideo instanceof File) {
-        illiterateVideoUrl = await uploadFile(application.illiterateVideo, 'videos');
+      if (typeof application.illiterateVideo === 'object' && application.illiterateVideo !== null) {
+        illiterateVideoUrl = await uploadFile(application.illiterateVideo as File, 'videos');
       }
       
       // Inserir aplicação no banco de dados
@@ -92,6 +92,10 @@ export const useSupabase = () => {
         throw new Error('Falha ao salvar a inscrição');
       }
       
+      if (!data) {
+        throw new Error('Falha ao obter ID da inscrição após salvamento');
+      }
+      
       // Inserir imagens relacionadas à aplicação
       if (imageUrls.length > 0) {
         const imageData = imageUrls.map(url => ({
@@ -118,85 +122,108 @@ export const useSupabase = () => {
 
   // Função para buscar todas as aplicações
   const fetchApplications = async (): Promise<Application[]> => {
-    const { data, error } = await supabase
-      .from('applications')
-      .select('*')
-      .order('created_at', { ascending: false });
-      
-    if (error) {
-      console.error('Erro ao buscar aplicações:', error);
-      throw new Error('Falha ao carregar as inscrições');
-    }
-    
-    // Buscar imagens para cada aplicação
-    const applications = await Promise.all(
-      data.map(async (app) => {
-        const { data: imageData, error: imageError } = await supabase
-          .from('application_images')
-          .select('image_url')
-          .eq('application_id', app.id);
-          
-        if (imageError) {
-          console.error('Erro ao buscar imagens:', imageError);
-          return mapDatabaseToApplication(app, []);
-        }
+    try {
+      const { data, error } = await supabase
+        .from('applications')
+        .select('*')
+        .order('created_at', { ascending: false });
         
-        const images = imageData.map(img => img.image_url);
-        return mapDatabaseToApplication(app, images);
-      })
-    );
-    
-    return applications;
+      if (error) {
+        console.error('Erro ao buscar aplicações:', error);
+        throw new Error('Falha ao carregar as inscrições');
+      }
+      
+      if (!data) {
+        return [];
+      }
+      
+      // Buscar imagens para cada aplicação
+      const applications = await Promise.all(
+        data.map(async (app) => {
+          const { data: imageData, error: imageError } = await supabase
+            .from('application_images')
+            .select('image_url')
+            .eq('application_id', app.id);
+            
+          if (imageError) {
+            console.error('Erro ao buscar imagens:', imageError);
+            return mapDatabaseToApplication(app, []);
+          }
+          
+          const images = imageData ? imageData.map(img => img.image_url as string) : [];
+          return mapDatabaseToApplication(app, images);
+        })
+      );
+      
+      return applications;
+    } catch (error) {
+      console.error("Erro ao buscar aplicações:", error);
+      throw error;
+    }
   };
 
   // Função para buscar uma aplicação específica
   const fetchApplicationById = async (id: string): Promise<Application> => {
-    const { data, error } = await supabase
-      .from('applications')
-      .select('*')
-      .eq('id', id)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('applications')
+        .select('*')
+        .eq('id', id)
+        .single();
+        
+      if (error) {
+        console.error('Erro ao buscar aplicação:', error);
+        throw new Error('Falha ao carregar a inscrição');
+      }
       
-    if (error) {
-      console.error('Erro ao buscar aplicação:', error);
-      throw new Error('Falha ao carregar a inscrição');
-    }
-    
-    // Buscar imagens da aplicação
-    const { data: imageData, error: imageError } = await supabase
-      .from('application_images')
-      .select('image_url')
-      .eq('application_id', id);
+      if (!data) {
+        throw new Error('Inscrição não encontrada');
+      }
       
-    if (imageError) {
-      console.error('Erro ao buscar imagens:', imageError);
-      return mapDatabaseToApplication(data, []);
+      // Buscar imagens da aplicação
+      const { data: imageData, error: imageError } = await supabase
+        .from('application_images')
+        .select('image_url')
+        .eq('application_id', id);
+        
+      if (imageError) {
+        console.error('Erro ao buscar imagens:', imageError);
+        return mapDatabaseToApplication(data, []);
+      }
+      
+      const images = imageData ? imageData.map(img => img.image_url as string) : [];
+      return mapDatabaseToApplication(data, images);
+    } catch (error) {
+      console.error("Erro ao buscar aplicação por ID:", error);
+      throw error;
     }
-    
-    const images = imageData.map(img => img.image_url);
-    return mapDatabaseToApplication(data, images);
   };
 
   // Função para atualizar uma aplicação
   const updateApplication = async (id: string, updates: Partial<Application>): Promise<void> => {
-    const { error } = await supabase
-      .from('applications')
-      .update({
-        criteria_a: updates.criteriaA,
-        criteria_b: updates.criteriaB,
-        criteria_c: updates.criteriaC,
-        criteria_d: updates.criteriaD,
-        criteria_e: updates.criteriaE,
-        criteria_f: updates.criteriaF,
-        item_2514: updates.item2514,
-        status: updates.status,
-        divergences: updates.divergences
-      })
-      .eq('id', id);
-      
-    if (error) {
-      console.error('Erro ao atualizar aplicação:', error);
-      throw new Error('Falha ao atualizar a inscrição');
+    try {
+      const { error } = await supabase
+        .from('applications')
+        .update({
+          criteria_a: updates.criteriaA,
+          criteria_b: updates.criteriaB,
+          criteria_c: updates.criteriaC,
+          criteria_d: updates.criteriaD,
+          criteria_e: updates.criteriaE,
+          criteria_f: updates.criteriaF,
+          item_2514: updates.item2514,
+          status: updates.status,
+          divergences: updates.divergences
+        })
+        .eq('id', id);
+        
+      if (error) {
+        console.error('Erro ao atualizar aplicação:', error);
+        throw new Error('Falha ao atualizar a inscrição');
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar aplicação:", error);
+      throw error;
     }
   };
 
@@ -206,14 +233,14 @@ export const useSupabase = () => {
       id: dbData.id,
       name: dbData.name,
       culturalCategory: dbData.cultural_category,
-      criteriaA: dbData.criteria_a || "",
-      criteriaB: dbData.criteria_b || "",
-      criteriaC: dbData.criteria_c || "",
-      criteriaD: dbData.criteria_d || "",
-      criteriaE: dbData.criteria_e || "",
-      criteriaF: dbData.criteria_f || "",
-      item2514: dbData.item_2514 || "",
-      status: dbData.status as any,
+      criteriaA: dbData.criteria_a as CriteriaStatus || "" as CriteriaStatus,
+      criteriaB: dbData.criteria_b as CriteriaStatus || "" as CriteriaStatus,
+      criteriaC: dbData.criteria_c as CriteriaStatus || "" as CriteriaStatus,
+      criteriaD: dbData.criteria_d as CriteriaStatus || "" as CriteriaStatus,
+      criteriaE: dbData.criteria_e as CriteriaStatus || "" as CriteriaStatus,
+      criteriaF: dbData.criteria_f as CriteriaStatus || "" as CriteriaStatus,
+      item2514: dbData.item_2514 as CriteriaStatus || "" as CriteriaStatus,
+      status: dbData.status as ApplicationStatus,
       divergences: dbData.divergences || "",
       cpf: dbData.cpf,
       birthDate: dbData.birth_date,
