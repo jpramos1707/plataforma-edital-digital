@@ -164,13 +164,27 @@ const ApplicationDetailsModal = ({
                 <h4 className="font-semibold mb-2">Vídeo de Apresentação</h4>
                 {application.video ? (
                   typeof application.video === 'string' ? (
-                    <video
-                      controls
-                      className="w-full rounded-lg"
-                      src={application.video}
-                    >
-                      Seu navegador não suporta o elemento de vídeo.
-                    </video>
+                    <div className="max-w-lg mx-auto">
+                      <div className="relative pt-[56.25%] bg-gray-100 rounded-lg overflow-hidden">
+                        <video
+                          controls
+                          className="absolute top-0 left-0 w-full h-full object-contain"
+                          src={application.video}
+                        >
+                          Seu navegador não suporta o elemento de vídeo.
+                        </video>
+                      </div>
+                      <div className="mt-2 text-center">
+                        <a 
+                          href={application.video} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline text-sm"
+                        >
+                          Abrir vídeo em nova guia
+                        </a>
+                      </div>
+                    </div>
                   ) : (
                     <p>Vídeo carregado, mas ainda não enviado ao servidor</p>
                   )
@@ -183,13 +197,27 @@ const ApplicationDetailsModal = ({
                 <h4 className="font-semibold mb-2">Vídeo Complementar</h4>
                 {application.illiterateVideo ? (
                   typeof application.illiterateVideo === 'string' ? (
-                    <video
-                      controls
-                      className="w-full rounded-lg"
-                      src={application.illiterateVideo}
-                    >
-                      Seu navegador não suporta o elemento de vídeo.
-                    </video>
+                    <div className="max-w-lg mx-auto">
+                      <div className="relative pt-[56.25%] bg-gray-100 rounded-lg overflow-hidden">
+                        <video
+                          controls
+                          className="absolute top-0 left-0 w-full h-full object-contain"
+                          src={application.illiterateVideo}
+                        >
+                          Seu navegador não suporta o elemento de vídeo.
+                        </video>
+                      </div>
+                      <div className="mt-2 text-center">
+                        <a 
+                          href={application.illiterateVideo} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline text-sm"
+                        >
+                          Abrir vídeo em nova guia
+                        </a>
+                      </div>
+                    </div>
                   ) : (
                     <p>Vídeo carregado, mas ainda não enviado ao servidor</p>
                   )
