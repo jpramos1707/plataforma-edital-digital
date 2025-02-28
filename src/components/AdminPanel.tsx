@@ -18,6 +18,7 @@ const AdminPanel = () => {
   const [pendingChanges, setPendingChanges] = useState<{
     [key: string]: Partial<Application>;
   }>({});
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const { fetchApplications, updateApplication } = useSupabase();
 
@@ -25,10 +26,12 @@ const AdminPanel = () => {
     const loadApplications = async () => {
       try {
         setLoading(true);
+        setLoadError(null);
         const data = await fetchApplications();
         setApplications(data);
       } catch (error) {
         console.error("Erro ao carregar inscrições:", error);
+        setLoadError("Erro ao carregar as inscrições. Por favor, recarregue a página.");
         toast.error("Erro ao carregar as inscrições. Por favor, recarregue a página.");
       } finally {
         setLoading(false);
@@ -36,7 +39,9 @@ const AdminPanel = () => {
     };
 
     loadApplications();
-  }, [fetchApplications]);
+    // Este useEffect só deve ser executado uma vez ao montar o componente
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const updateApplicationStatus = (
     applicationId: string,
@@ -105,6 +110,16 @@ const AdminPanel = () => {
         
         {loading ? (
           <div className="text-center py-8">Carregando inscrições...</div>
+        ) : loadError ? (
+          <div className="text-center py-8 text-red-500">
+            {loadError}
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-colors"
+            >
+              Recarregar página
+            </button>
+          </div>
         ) : applications.length === 0 ? (
           <div className="text-center py-8">Nenhuma inscrição encontrada.</div>
         ) : (
