@@ -1,51 +1,16 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Application } from "@/types/application";
 import { ApplicationTable } from "./admin/ApplicationTable";
 import { EvaluationCriteria } from "./admin/EvaluationCriteria";
 import ApplicationDetailsModal from "./ApplicationDetailsModal";
+import { useSupabase } from "@/hooks/useSupabase";
 
 const AdminPanel = () => {
-  const [applications, setApplications] = useState<Application[]>([
-    {
-      id: "001",
-      name: "João Silva",
-      culturalCategory: "Música",
-      criteriaA: "",
-      criteriaB: "",
-      criteriaC: "",
-      criteriaD: "",
-      criteriaE: "",
-      criteriaF: "",
-      item2514: "",
-      status: "DEFERIDO",
-      divergences: "",
-      cpf: "123.456.789-00",
-      birthDate: "01/01/1990",
-      race: "Parda",
-      phone: "(84) 99999-9999",
-      email: "joao@example.com",
-      cep: "59000-000",
-      street: "Rua Principal",
-      number: "123",
-      neighborhood: "Centro",
-      city: "Poço Branco",
-      state: "RN",
-      cultureMakerName: "Grupo Musical João Silva",
-      cultureHistory: "História cultural do artista...",
-      traditionalKnowledge: "Conhecimentos tradicionais...",
-      diversityValue: "Valorização da diversidade...",
-      images: [
-        "https://example.com/image1.jpg",
-        "https://example.com/image2.jpg",
-      ],
-      video: "https://example.com/video.mp4",
-      illiterateVideo: "https://example.com/video2.mp4",
-    },
-  ]);
-
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(
     null
   );
@@ -53,6 +18,25 @@ const AdminPanel = () => {
   const [pendingChanges, setPendingChanges] = useState<{
     [key: string]: Partial<Application>;
   }>({});
+
+  const { fetchApplications, updateApplication } = useSupabase();
+
+  useEffect(() => {
+    const loadApplications = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchApplications();
+        setApplications(data);
+      } catch (error) {
+        console.error("Erro ao carregar inscrições:", error);
+        toast.error("Erro ao carregar as inscrições. Por favor, recarregue a página.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadApplications();
+  }, [fetchApplications]);
 
   const updateApplicationStatus = (
     applicationId: string,
@@ -68,23 +52,33 @@ const AdminPanel = () => {
     }));
   };
 
-  const saveChanges = (applicationId: string) => {
+  const saveChanges = async (applicationId: string) => {
     const changes = pendingChanges[applicationId];
     if (!changes) return;
 
-    setApplications((prev) =>
-      prev.map((app) =>
-        app.id === applicationId ? { ...app, ...changes } : app
-      )
-    );
+    try {
+      // Atualizar no Supabase
+      await updateApplication(applicationId, changes);
 
-    setPendingChanges((prev) => {
-      const newPending = { ...prev };
-      delete newPending[applicationId];
-      return newPending;
-    });
+      // Atualizar o estado local
+      setApplications((prev) =>
+        prev.map((app) =>
+          app.id === applicationId ? { ...app, ...changes } : app
+        )
+      );
 
-    toast.success("Alterações salvas com sucesso!");
+      // Limpar as mudanças pendentes
+      setPendingChanges((prev) => {
+        const newPending = { ...prev };
+        delete newPending[applicationId];
+        return newPending;
+      });
+
+      toast.success("Alterações salvas com sucesso!");
+    } catch (error) {
+      console.error("Erro ao salvar alterações:", error);
+      toast.error("Erro ao salvar as alterações. Por favor, tente novamente.");
+    }
   };
 
   const getApplicationValue = (
@@ -109,16 +103,22 @@ const AdminPanel = () => {
         
         <EvaluationCriteria />
         
-        <div className="overflow-x-auto">
-          <ApplicationTable
-            applications={applications}
-            pendingChanges={pendingChanges}
-            onStatusChange={updateApplicationStatus}
-            onSave={saveChanges}
-            onViewDetails={openApplicationDetails}
-            getApplicationValue={getApplicationValue}
-          />
-        </div>
+        {loading ? (
+          <div className="text-center py-8">Carregando inscrições...</div>
+        ) : applications.length === 0 ? (
+          <div className="text-center py-8">Nenhuma inscrição encontrada.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <ApplicationTable
+              applications={applications}
+              pendingChanges={pendingChanges}
+              onStatusChange={updateApplicationStatus}
+              onSave={saveChanges}
+              onViewDetails={openApplicationDetails}
+              getApplicationValue={getApplicationValue}
+            />
+          </div>
+        )}
       </Card>
       
       <ApplicationDetailsModal

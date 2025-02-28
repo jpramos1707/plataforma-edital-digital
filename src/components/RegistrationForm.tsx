@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -15,26 +16,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useSupabase } from "@/hooks/useSupabase";
 
 const formSchema = z.object({
   fullName: z.string().min(3, "Nome completo é obrigatório"),
   cpf: z.string().min(11, "CPF inválido").max(11, "CPF inválido"),
-  birthDate: z.string(),
-  race: z.string(),
-  phone: z.string(),
+  birthDate: z.string().min(1, "Data de nascimento é obrigatória"),
+  race: z.string().min(1, "Selecione uma opção"),
+  phone: z.string().min(1, "Telefone é obrigatório"),
   email: z.string().email("Email inválido"),
-  culturalCategory: z.string(),
-  cep: z.string(),
-  street: z.string(),
-  number: z.string(),
+  culturalCategory: z.string().min(1, "Selecione uma categoria"),
+  cep: z.string().min(1, "CEP é obrigatório"),
+  street: z.string().min(1, "Logradouro é obrigatório"),
+  number: z.string().min(1, "Número é obrigatório"),
   complement: z.string().optional(),
-  neighborhood: z.string(),
-  city: z.string(),
-  state: z.string(),
+  neighborhood: z.string().min(1, "Bairro é obrigatório"),
+  city: z.string().min(1, "Cidade é obrigatória"),
+  state: z.string().min(1, "Estado é obrigatório"),
+  cultureMakerName: z.string().min(1, "Nome do fazedor de cultura é obrigatório"),
+  cultureHistory: z.string().min(1, "História da atuação cultural é obrigatória"),
+  traditionalKnowledge: z.string().min(1, "Este campo é obrigatório"),
+  diversityValue: z.string().min(1, "Este campo é obrigatório"),
 });
 
 const RegistrationForm = () => {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [identificationVideo, setIdentificationVideo] = useState<File | null>(null);
+  const [illiterateVideo, setIlliterateVideo] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const { saveApplication } = useSupabase();
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -43,6 +54,18 @@ const RegistrationForm = () => {
       return;
     }
     setSelectedImages([...selectedImages, ...files]);
+  };
+
+  const handleVideoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setIdentificationVideo(event.target.files[0]);
+    }
+  };
+
+  const handleIlliterateVideoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setIlliterateVideo(event.target.files[0]);
+    }
   };
 
   const removeImage = (index: number) => {
@@ -60,11 +83,71 @@ const RegistrationForm = () => {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      // Here you would typically send the data to your backend
-      console.log(data);
+      setIsSubmitting(true);
+      
+      // Verificar se há imagens selecionadas
+      if (selectedImages.length === 0) {
+        toast.error("Por favor, selecione pelo menos uma imagem do seu portfólio.");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Verificar se o vídeo de identificação foi enviado
+      if (!identificationVideo) {
+        toast.error("Por favor, faça o upload do vídeo de identificação.");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Preparar dados para envio ao Supabase
+      const applicationData = {
+        name: data.fullName,
+        culturalCategory: data.culturalCategory,
+        criteriaA: "",
+        criteriaB: "",
+        criteriaC: "",
+        criteriaD: "",
+        criteriaE: "",
+        criteriaF: "",
+        item2514: "",
+        status: "DEFERIDO" as const,
+        divergences: "",
+        cpf: data.cpf,
+        birthDate: data.birthDate,
+        race: data.race,
+        phone: data.phone,
+        email: data.email,
+        cep: data.cep,
+        street: data.street,
+        number: data.number,
+        complement: data.complement,
+        neighborhood: data.neighborhood,
+        city: data.city,
+        state: data.state,
+        cultureMakerName: data.cultureMakerName,
+        cultureHistory: data.cultureHistory,
+        traditionalKnowledge: data.traditionalKnowledge,
+        diversityValue: data.diversityValue,
+        images: [],
+        video: identificationVideo,
+        illiterateVideo: illiterateVideo || "",
+      };
+      
+      // Salvar no Supabase
+      await saveApplication(applicationData, selectedImages);
+      
       toast.success("Inscrição enviada com sucesso!");
+      
+      // Limpar o formulário
+      setSelectedImages([]);
+      setIdentificationVideo(null);
+      setIlliterateVideo(null);
+      
     } catch (error) {
-      toast.error("Erro ao enviar inscrição");
+      console.error("Erro ao enviar inscrição:", error);
+      toast.error("Erro ao enviar inscrição. Por favor, tente novamente.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -115,6 +198,11 @@ const RegistrationForm = () => {
                 {...register("birthDate")}
                 className="w-full"
               />
+              {errors.birthDate && (
+                <span className="text-red-500 text-sm">
+                  {errors.birthDate.message as string}
+                </span>
+              )}
             </div>
 
             <div>
@@ -131,6 +219,11 @@ const RegistrationForm = () => {
                   <SelectItem value="indigena">Indígena</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.race && (
+                <span className="text-red-500 text-sm">
+                  {errors.race.message as string}
+                </span>
+              )}
             </div>
 
             <div>
@@ -141,6 +234,11 @@ const RegistrationForm = () => {
                 className="w-full"
                 placeholder="Digite seu telefone"
               />
+              {errors.phone && (
+                <span className="text-red-500 text-sm">
+                  {errors.phone.message as string}
+                </span>
+              )}
             </div>
 
             <div>
@@ -202,6 +300,11 @@ const RegistrationForm = () => {
                   <SelectItem value="teatro">Teatro</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.culturalCategory && (
+                <span className="text-red-500 text-sm">
+                  {errors.culturalCategory.message as string}
+                </span>
+              )}
             </div>
 
             <div>
@@ -212,6 +315,11 @@ const RegistrationForm = () => {
                 className="w-full"
                 placeholder="Digite seu CEP"
               />
+              {errors.cep && (
+                <span className="text-red-500 text-sm">
+                  {errors.cep.message as string}
+                </span>
+              )}
             </div>
 
             <div>
@@ -222,6 +330,11 @@ const RegistrationForm = () => {
                 className="w-full"
                 placeholder="Digite seu endereço"
               />
+              {errors.street && (
+                <span className="text-red-500 text-sm">
+                  {errors.street.message as string}
+                </span>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -233,6 +346,11 @@ const RegistrationForm = () => {
                   className="w-full"
                   placeholder="Número"
                 />
+                {errors.number && (
+                  <span className="text-red-500 text-sm">
+                    {errors.number.message as string}
+                  </span>
+                )}
               </div>
 
               <div>
@@ -254,6 +372,11 @@ const RegistrationForm = () => {
                 className="w-full"
                 placeholder="Digite seu bairro"
               />
+              {errors.neighborhood && (
+                <span className="text-red-500 text-sm">
+                  {errors.neighborhood.message as string}
+                </span>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -265,6 +388,11 @@ const RegistrationForm = () => {
                   className="w-full"
                   placeholder="Digite sua cidade"
                 />
+                {errors.city && (
+                  <span className="text-red-500 text-sm">
+                    {errors.city.message as string}
+                  </span>
+                )}
               </div>
 
               <div>
@@ -303,6 +431,11 @@ const RegistrationForm = () => {
                     <SelectItem value="TO">Tocantins</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.state && (
+                  <span className="text-red-500 text-sm">
+                    {errors.state.message as string}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -314,6 +447,11 @@ const RegistrationForm = () => {
                 className="w-full"
                 placeholder="Digite o nome"
               />
+              {errors.cultureMakerName && (
+                <span className="text-red-500 text-sm">
+                  {errors.cultureMakerName.message as string}
+                </span>
+              )}
             </div>
 
             <div>
@@ -324,6 +462,11 @@ const RegistrationForm = () => {
                 className="w-full"
                 placeholder="Descreva sua história"
               />
+              {errors.cultureHistory && (
+                <span className="text-red-500 text-sm">
+                  {errors.cultureHistory.message as string}
+                </span>
+              )}
             </div>
 
             <div>
@@ -334,6 +477,11 @@ const RegistrationForm = () => {
                 className="w-full"
                 placeholder="Explique"
               />
+              {errors.traditionalKnowledge && (
+                <span className="text-red-500 text-sm">
+                  {errors.traditionalKnowledge.message as string}
+                </span>
+              )}
             </div>
 
             <div>
@@ -344,62 +492,78 @@ const RegistrationForm = () => {
                 className="w-full"
                 placeholder="Explique"
               />
+              {errors.diversityValue && (
+                <span className="text-red-500 text-sm">
+                  {errors.diversityValue.message as string}
+                </span>
+              )}
             </div>
 
             <div>
-            <Label>Adicionar portfólio ou até 5 fotos da sua atuação Cultural</Label>
-            <Input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-            <div className="mt-2 flex flex-wrap gap-2">
-              {selectedImages.map((image, index) => (
-                <div key={index} className="border rounded p-1 relative">
-                  <button
-                    type="button"
-                    onClick={() => removeImage(index)}
-                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                  >
-                    ×
-                  </button>
-                  <img
-                    src={URL.createObjectURL(image)}
-                    alt={`Preview ${index + 1}`}
-                    className="h-20 w-auto rounded"
-                  />
-                </div>
-              ))}
+              <Label>Adicionar portfólio ou até 5 fotos da sua atuação Cultural</Label>
+              <Input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+              <div className="mt-2 flex flex-wrap gap-2">
+                {selectedImages.map((image, index) => (
+                  <div key={index} className="border rounded p-1 relative">
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                    >
+                      ×
+                    </button>
+                    <img
+                      src={URL.createObjectURL(image)}
+                      alt={`Preview ${index + 1}`}
+                      className="h-20 w-auto rounded"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
 
             <div>
               <Label>Insira um vídeo de até 2 minutos, se identificando e solicitando a efetivação da sua inscrição.</Label>
-              <span className="text-sm text-gray-500">"Eu - seu nome - afirmo que sou artista fazedor de cultura e autorizo a realização da minha inscrição no edital da cultura de Poço Branco."</span>
+              <span className="text-sm text-gray-500 block mb-2">"Eu - seu nome - afirmo que sou artista fazedor de cultura e autorizo a realização da minha inscrição no edital da cultura de Poço Branco."</span>
               <Input
                 type="file"
                 accept="video/*"
+                onChange={handleVideoChange}
               />
+              {identificationVideo && (
+                <div className="mt-2">
+                  <span className="text-sm text-green-600">Vídeo selecionado: {identificationVideo.name}</span>
+                </div>
+              )}
             </div>
 
             <div>
               <Label>Vídeo para pessoas não alfabetizadas ou com dificuldades tecnológicas (até 4 minutos)</Label>
-              <span className="block text-sm text-gray-500 mt-1">Envie um vídeo apresentando o seu projeto e respondendo às perguntas do edital.</span>
+              <span className="block text-sm text-gray-500 mt-1 mb-2">Envie um vídeo apresentando o seu projeto e respondendo às perguntas do edital.</span>
               <Input
                 type="file"
                 accept="video/*"
-                className="mt-2"
+                onChange={handleIlliterateVideoChange}
               />
+              {illiterateVideo && (
+                <div className="mt-2">
+                  <span className="text-sm text-green-600">Vídeo selecionado: {illiterateVideo.name}</span>
+                </div>
+              )}
             </div>
-
           </div>
 
           <Button
             type="submit"
             className="w-full bg-primary hover:bg-primary/90 text-white"
+            disabled={isSubmitting}
           >
-            Enviar Inscrição
+            {isSubmitting ? "Enviando..." : "Enviar Inscrição"}
           </Button>
         </form>
       </Card>

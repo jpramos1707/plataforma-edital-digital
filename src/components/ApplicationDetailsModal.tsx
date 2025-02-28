@@ -142,21 +142,27 @@ const ApplicationDetailsModal = ({
               
               <div>
                 <h4 className="font-semibold mb-2">Imagens do Portfólio</h4>
-                <div className="grid grid-cols-3 gap-4">
-                  {application.images.map((image, index) => (
-                    <img
-                      key={index}
-                      src={image}
-                      alt={`Imagem ${index + 1} do portfólio`}
-                      className="rounded-lg w-full aspect-video object-cover"
-                    />
-                  ))}
-                </div>
+                {application.images.length > 0 ? (
+                  <div className="grid grid-cols-3 gap-4">
+                    {application.images.map((image, index) => (
+                      <img
+                        key={index}
+                        src={image}
+                        alt={`Imagem ${index + 1} do portfólio`}
+                        className="rounded-lg w-full aspect-video object-cover"
+                        onClick={() => window.open(image, '_blank')}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p>Nenhuma imagem disponível</p>
+                )}
               </div>
 
               <div>
                 <h4 className="font-semibold mb-2">Vídeo de Apresentação</h4>
-                {application.video && (
+                {application.video ? (
                   <video
                     controls
                     className="w-full rounded-lg"
@@ -164,12 +170,14 @@ const ApplicationDetailsModal = ({
                   >
                     Seu navegador não suporta o elemento de vídeo.
                   </video>
+                ) : (
+                  <p>Vídeo não disponível</p>
                 )}
               </div>
 
               <div>
                 <h4 className="font-semibold mb-2">Vídeo Complementar</h4>
-                {application.illiterateVideo && (
+                {application.illiterateVideo ? (
                   <video
                     controls
                     className="w-full rounded-lg"
@@ -177,6 +185,8 @@ const ApplicationDetailsModal = ({
                   >
                     Seu navegador não suporta o elemento de vídeo.
                   </video>
+                ) : (
+                  <p>Vídeo complementar não disponível</p>
                 )}
               </div>
             </div>
