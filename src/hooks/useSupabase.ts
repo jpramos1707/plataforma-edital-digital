@@ -92,7 +92,7 @@ export const useSupabase = () => {
       }
       
       // Inserir aplicação no banco de dados
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('applications')
         .insert({
           name: application.name,
@@ -144,7 +144,7 @@ export const useSupabase = () => {
           image_url: url
         }));
         
-        const { error: imageError } = await supabase
+        const { error: imageError } = await (supabase as any)
           .from('application_images')
           .insert(imageData);
           
@@ -164,7 +164,7 @@ export const useSupabase = () => {
   // Função para buscar todas as aplicações
   const fetchApplications = async (): Promise<Application[]> => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('applications')
         .select('*')
         .order('created_at', { ascending: false });
@@ -180,8 +180,8 @@ export const useSupabase = () => {
       
       // Buscar imagens para cada aplicação
       const applications = await Promise.all(
-        data.map(async (app) => {
-          const { data: imageData, error: imageError } = await supabase
+        data.map(async (app: any) => {
+          const { data: imageData, error: imageError } = await (supabase as any)
             .from('application_images')
             .select('image_url')
             .eq('application_id', app.id);
@@ -191,7 +191,7 @@ export const useSupabase = () => {
             return mapDatabaseToApplication(app as ApplicationTable, []);
           }
           
-          const images = imageData ? imageData.map(img => img.image_url as string) : [];
+          const images = imageData ? imageData.map((img: any) => img.image_url as string) : [];
           return mapDatabaseToApplication(app as ApplicationTable, images);
         })
       );
@@ -206,7 +206,7 @@ export const useSupabase = () => {
   // Função para buscar uma aplicação específica
   const fetchApplicationById = async (id: string): Promise<Application> => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('applications')
         .select('*')
         .eq('id', id)
@@ -222,7 +222,7 @@ export const useSupabase = () => {
       }
       
       // Buscar imagens da aplicação
-      const { data: imageData, error: imageError } = await supabase
+      const { data: imageData, error: imageError } = await (supabase as any)
         .from('application_images')
         .select('image_url')
         .eq('application_id', id);
@@ -232,7 +232,7 @@ export const useSupabase = () => {
         return mapDatabaseToApplication(data as ApplicationTable, []);
       }
       
-      const images = imageData ? imageData.map(img => img.image_url as string) : [];
+      const images = imageData ? imageData.map((img: any) => img.image_url as string) : [];
       return mapDatabaseToApplication(data as ApplicationTable, images);
     } catch (error) {
       console.error("Erro ao buscar aplicação por ID:", error);
@@ -243,7 +243,7 @@ export const useSupabase = () => {
   // Função para atualizar uma aplicação
   const updateApplication = async (id: string, updates: Partial<Application>): Promise<void> => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('applications')
         .update({
           criteria_a: updates.criteriaA,
