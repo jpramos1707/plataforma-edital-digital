@@ -9,7 +9,137 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      application_images: {
+        Row: {
+          application_id: string
+          created_at: string | null
+          id: string
+          image_url: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string | null
+          id?: string
+          image_url: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string | null
+          id?: string
+          image_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_images_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      applications: {
+        Row: {
+          birth_date: string
+          cep: string
+          city: string
+          complement: string | null
+          cpf: string
+          created_at: string | null
+          criteria_a: string | null
+          criteria_b: string | null
+          criteria_c: string | null
+          criteria_d: string | null
+          criteria_e: string | null
+          criteria_f: string | null
+          cultural_category: string
+          culture_history: string
+          culture_maker_name: string
+          divergences: string | null
+          diversity_value: string
+          email: string
+          id: string
+          illiterate_video: string | null
+          item_2514: string | null
+          name: string
+          neighborhood: string
+          number: string
+          phone: string
+          race: string
+          state: string
+          status: string | null
+          street: string
+          traditional_knowledge: string
+          video: string
+        }
+        Insert: {
+          birth_date: string
+          cep: string
+          city: string
+          complement?: string | null
+          cpf: string
+          created_at?: string | null
+          criteria_a?: string | null
+          criteria_b?: string | null
+          criteria_c?: string | null
+          criteria_d?: string | null
+          criteria_e?: string | null
+          criteria_f?: string | null
+          cultural_category: string
+          culture_history: string
+          culture_maker_name: string
+          divergences?: string | null
+          diversity_value: string
+          email: string
+          id?: string
+          illiterate_video?: string | null
+          item_2514?: string | null
+          name: string
+          neighborhood: string
+          number: string
+          phone: string
+          race: string
+          state: string
+          status?: string | null
+          street: string
+          traditional_knowledge: string
+          video: string
+        }
+        Update: {
+          birth_date?: string
+          cep?: string
+          city?: string
+          complement?: string | null
+          cpf?: string
+          created_at?: string | null
+          criteria_a?: string | null
+          criteria_b?: string | null
+          criteria_c?: string | null
+          criteria_d?: string | null
+          criteria_e?: string | null
+          criteria_f?: string | null
+          cultural_category?: string
+          culture_history?: string
+          culture_maker_name?: string
+          divergences?: string | null
+          diversity_value?: string
+          email?: string
+          id?: string
+          illiterate_video?: string | null
+          item_2514?: string | null
+          name?: string
+          neighborhood?: string
+          number?: string
+          phone?: string
+          race?: string
+          state?: string
+          status?: string | null
+          street?: string
+          traditional_knowledge?: string
+          video?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
