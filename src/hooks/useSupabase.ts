@@ -93,7 +93,7 @@ export const useSupabase = () => {
       
       // Inserir aplicação no banco de dados
       const { data, error } = await supabase
-        .from<ApplicationTable>('applications')
+        .from('applications')
         .insert({
           name: application.name,
           cultural_category: application.culturalCategory,
@@ -124,7 +124,7 @@ export const useSupabase = () => {
           diversity_value: application.diversityValue,
           video: videoUrl,
           illiterate_video: illiterateVideoUrl
-        } as any)
+        })
         .select('id')
         .single();
         
@@ -145,8 +145,8 @@ export const useSupabase = () => {
         }));
         
         const { error: imageError } = await supabase
-          .from<ApplicationImage>('application_images')
-          .insert(imageData as any);
+          .from('application_images')
+          .insert(imageData);
           
         if (imageError) {
           console.error('Erro ao salvar imagens:', imageError);
@@ -165,7 +165,7 @@ export const useSupabase = () => {
   const fetchApplications = async (): Promise<Application[]> => {
     try {
       const { data, error } = await supabase
-        .from<ApplicationTable>('applications')
+        .from('applications')
         .select('*')
         .order('created_at', { ascending: false });
         
@@ -182,17 +182,17 @@ export const useSupabase = () => {
       const applications = await Promise.all(
         data.map(async (app) => {
           const { data: imageData, error: imageError } = await supabase
-            .from<ApplicationImage>('application_images')
+            .from('application_images')
             .select('image_url')
             .eq('application_id', app.id);
             
           if (imageError) {
             console.error('Erro ao buscar imagens:', imageError);
-            return mapDatabaseToApplication(app, []);
+            return mapDatabaseToApplication(app as ApplicationTable, []);
           }
           
           const images = imageData ? imageData.map(img => img.image_url as string) : [];
-          return mapDatabaseToApplication(app, images);
+          return mapDatabaseToApplication(app as ApplicationTable, images);
         })
       );
       
@@ -207,7 +207,7 @@ export const useSupabase = () => {
   const fetchApplicationById = async (id: string): Promise<Application> => {
     try {
       const { data, error } = await supabase
-        .from<ApplicationTable>('applications')
+        .from('applications')
         .select('*')
         .eq('id', id)
         .single();
@@ -223,17 +223,17 @@ export const useSupabase = () => {
       
       // Buscar imagens da aplicação
       const { data: imageData, error: imageError } = await supabase
-        .from<ApplicationImage>('application_images')
+        .from('application_images')
         .select('image_url')
         .eq('application_id', id);
         
       if (imageError) {
         console.error('Erro ao buscar imagens:', imageError);
-        return mapDatabaseToApplication(data, []);
+        return mapDatabaseToApplication(data as ApplicationTable, []);
       }
       
       const images = imageData ? imageData.map(img => img.image_url as string) : [];
-      return mapDatabaseToApplication(data, images);
+      return mapDatabaseToApplication(data as ApplicationTable, images);
     } catch (error) {
       console.error("Erro ao buscar aplicação por ID:", error);
       throw error;
@@ -244,7 +244,7 @@ export const useSupabase = () => {
   const updateApplication = async (id: string, updates: Partial<Application>): Promise<void> => {
     try {
       const { error } = await supabase
-        .from<ApplicationTable>('applications')
+        .from('applications')
         .update({
           criteria_a: updates.criteriaA,
           criteria_b: updates.criteriaB,
@@ -255,7 +255,7 @@ export const useSupabase = () => {
           item_2514: updates.item2514,
           status: updates.status,
           divergences: updates.divergences
-        } as any)
+        })
         .eq('id', id);
         
       if (error) {
