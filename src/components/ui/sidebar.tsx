@@ -118,7 +118,7 @@ const SidebarNav = React.forwardRef<
   React.HTMLAttributes<HTMLElement>
 >(({ className, ...props }, ref) => (
   <nav
-    ref={ref as React.LegacyRef<HTMLElement>}
+    ref={ref as React.Ref<HTMLElement>}
     className={cn(
       "flex h-full flex-col gap-4 overflow-hidden p-2",
       className
@@ -184,10 +184,8 @@ const SidebarItem = React.forwardRef<
     endIcon?: React.ReactNode
     badge?: string
     badgeVariant?: "default" | "outline"
-    badgeSize?: "default" | "sm" | "lg"
     external?: boolean
     variant?: "default" | "outline" | string
-    size?: "default" | "sm" | "lg" | string
     collapsed?: boolean
   }
 >(
@@ -201,10 +199,8 @@ const SidebarItem = React.forwardRef<
       endIcon,
       badge,
       badgeVariant = "default",
-      badgeSize = "default",
       external,
       variant = "default",
-      size = "default",
       collapsed,
       children,
       ...props
@@ -221,7 +217,6 @@ const SidebarItem = React.forwardRef<
             {badge && (
               <Badge
                 variant={badgeVariant as "default" | "outline"}
-                size={badgeSize as "default" | "sm" | "lg"}
                 className="ml-auto"
               >
                 {badge}
@@ -240,7 +235,6 @@ const SidebarItem = React.forwardRef<
             active,
             collapsed,
             variant: variant as "default" | "outline",
-            size: size as "default" | "sm" | "lg",
           }),
           className
         )}
