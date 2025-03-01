@@ -1,5 +1,5 @@
 
-import { z } from "zod";
+import * as z from "zod";
 
 export const formSchema = z.object({
   fullName: z.string().min(3, "Nome completo é obrigatório"),
