@@ -22,4 +22,4 @@ export const formSchema = z.object({
   diversityValue: z.string().min(1, "Este campo é obrigatório"),
 });
 
-export type FormValues = z.infer<typeof formSchema>;
+export type FormValues = typeof formSchema.shape;
