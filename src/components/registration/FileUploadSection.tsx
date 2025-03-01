@@ -51,7 +51,7 @@ const FileUploadSection = ({
         <Label>Adicionar portfólio ou até 5 fotos da sua atuação Cultural</Label>
         <Input
           type="file"
-          multiple
+          multiple={true}
           accept="image/*"
           onChange={handleImageChange}
         />
