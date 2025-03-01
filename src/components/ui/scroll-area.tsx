@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 
 export interface ScrollAreaProps extends React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> {
   children?: React.ReactNode;
+  className?: string;
 }
 
 const ScrollArea = React.forwardRef<

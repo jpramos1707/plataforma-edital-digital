@@ -113,6 +113,7 @@ SelectLabel.displayName = SelectPrimitive.Label.displayName
 export interface SelectItemProps
   extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {
   children?: React.ReactNode;
+  value: string;
 }
 
 const SelectItem = React.forwardRef<
