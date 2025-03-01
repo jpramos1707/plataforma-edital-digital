@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";  
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -47,6 +48,7 @@ const RegistrationForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { saveApplication } = useSupabase();
+  const navigate = useNavigate();
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -78,6 +80,7 @@ const RegistrationForm = () => {
     handleSubmit,
     formState: { errors },
     setValue,
+    reset,
   } = useForm({
     resolver: zodResolver(formSchema),
   });
@@ -121,7 +124,7 @@ const RegistrationForm = () => {
         cep: data.cep,
         street: data.street,
         number: data.number,
-        complement: data.complement,
+        complement: data.complement || "",
         neighborhood: data.neighborhood,
         city: data.city,
         state: data.state,
@@ -131,7 +134,7 @@ const RegistrationForm = () => {
         diversityValue: data.diversityValue,
         images: [],
         video: identificationVideo,
-        illiterateVideo: illiterateVideo || "",
+        illiterateVideo: illiterateVideo || null,
       };
       
       // Salvar no Supabase
@@ -140,9 +143,15 @@ const RegistrationForm = () => {
       toast.success("Inscrição enviada com sucesso!");
       
       // Limpar o formulário
+      reset();
       setSelectedImages([]);
       setIdentificationVideo(null);
       setIlliterateVideo(null);
+      
+      // Recarregar a página após 2 segundos para mostrar a confirmação
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
       
     } catch (error) {
       console.error("Erro ao enviar inscrição:", error);
