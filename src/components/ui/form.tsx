@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { useFormContext, Controller } from "react-hook-form";
 
@@ -32,15 +33,19 @@ export const FormField = ({
   );
 };
 
-export const FormItem = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
+export const FormItem = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => {
   return (
-    <div className={cn("space-y-2", className)} {...props} />
+    <div ref={ref} className={cn("space-y-2", className)} {...props} />
   );
-};
+});
+FormItem.displayName = "FormItem";
 
 export const FormLabel = React.forwardRef<
-  React.ElementRef<typeof HTMLDivElement>,
-  React.ComponentPropsWithoutRef<typeof HTMLDivElement>
+  HTMLLabelElement,
+  React.LabelHTMLAttributes<HTMLLabelElement>
 >(({ className, ...props }, ref) => {
   const { id } = React.useContext(FormFieldContext);
 
@@ -59,14 +64,14 @@ export const FormLabel = React.forwardRef<
 FormLabel.displayName = "FormLabel";
 
 export const FormControl = React.forwardRef<
-  React.ElementRef<typeof HTMLDivElement>,
-  React.ComponentPropsWithoutRef<typeof HTMLDivElement>
->(({ className, ...props }, ref) => {
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, children, ...props }, ref) => {
   const { id } = React.useContext(FormFieldContext);
 
   return (
-    <div ref={ref} className={cn("relative", className)}>
-      {React.Children.map(props.children, (child) => {
+    <div ref={ref} className={cn("relative", className)} {...props}>
+      {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
           return React.cloneElement(child as React.ReactElement, {
             ...child.props,
@@ -81,8 +86,8 @@ export const FormControl = React.forwardRef<
 FormControl.displayName = "FormControl";
 
 export const FormDescription = React.forwardRef<
-  React.ElementRef<typeof HTMLParagraphElement>,
-  React.ComponentPropsWithoutRef<typeof HTMLParagraphElement>
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => {
   return (
     <p
@@ -95,8 +100,8 @@ export const FormDescription = React.forwardRef<
 FormDescription.displayName = "FormDescription";
 
 export const FormMessage = React.forwardRef<
-  React.ElementRef<typeof HTMLParagraphElement>,
-  React.ComponentPropsWithoutRef<typeof HTMLParagraphElement>
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => {
   const { formState } = useFormContext();
   const { id } = React.useContext(FormFieldContext);

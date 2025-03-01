@@ -2,22 +2,22 @@
 // Declare modules that TypeScript is having trouble finding
 declare module 'react' {
   export * from 'react';
-  export type LegacyRef<T> = React.LegacyRef<T>;
-  export type ForwardedRef<T> = React.ForwardedRef<T>;
+  export interface LegacyRef<T> {}
+  export interface ForwardedRef<T> {}
   export type ReactNode = React.ReactNode;
   export type ReactElement = React.ReactElement;
   export type CSSProperties = React.CSSProperties;
-  export type HTMLAttributes<T> = React.HTMLAttributes<T>;
-  export type ButtonHTMLAttributes<T> = React.ButtonHTMLAttributes<T>;
-  export type TextareaHTMLAttributes<T> = React.TextareaHTMLAttributes<T>;
-  export type ThHTMLAttributes<T> = React.ThHTMLAttributes<T>;
-  export type TdHTMLAttributes<T> = React.TdHTMLAttributes<T>;
-  export type ComponentProps<T extends React.ElementType> = React.ComponentProps<T>;
-  export type ElementRef<T extends React.ElementType> = React.ElementRef<T>;
-  export type ComponentPropsWithoutRef<T extends React.ElementType> = React.ComponentPropsWithoutRef<T>;
-  export type ComponentType<P = any> = React.ComponentType<P>;
-  export type ClassAttributes<T> = React.ClassAttributes<T>;
-  export type KeyboardEvent<T = Element> = React.KeyboardEvent<T>;
+  export interface HTMLAttributes<T> extends React.HTMLAttributes<T> {}
+  export interface ButtonHTMLAttributes<T> extends React.ButtonHTMLAttributes<T> {}
+  export interface TextareaHTMLAttributes<T> extends React.TextareaHTMLAttributes<T> {}
+  export interface ThHTMLAttributes<T> extends React.ThHTMLAttributes<T> {}
+  export interface TdHTMLAttributes<T> extends React.TdHTMLAttributes<T> {}
+  export interface ComponentProps<T extends React.ElementType> extends React.ComponentProps<T> {}
+  export interface ElementRef<T extends React.ElementType> extends React.ElementRef<T> {}
+  export interface ComponentPropsWithoutRef<T extends React.ElementType> extends React.ComponentPropsWithoutRef<T> {}
+  export interface ComponentType<P = any> extends React.ComponentType<P> {}
+  export interface ClassAttributes<T> extends React.ClassAttributes<T> {}
+  export interface KeyboardEvent<T = Element> extends React.KeyboardEvent<T> {}
   export type Ref<T> = React.Ref<T>;
   
   // Add missing React utilities
@@ -99,21 +99,25 @@ declare module '@radix-ui/react-accordion' {
     value: string;
     className?: string;
     children?: React.ReactNode;
+    ref?: React.Ref<any>;
   }
   
   export interface AccordionTriggerProps {
     className?: string;
     children?: React.ReactNode;
+    ref?: React.Ref<any>;
   }
   
   export interface AccordionContentProps {
     className?: string;
     children?: React.ReactNode;
+    ref?: React.Ref<any>;
   }
   
   export interface AccordionHeaderProps {
     className?: string;
     children?: React.ReactNode;
+    ref?: React.Ref<any>;
   }
 }
 
@@ -139,22 +143,26 @@ declare module '@radix-ui/react-dialog' {
     className?: string;
     children?: React.ReactNode;
     forceMount?: boolean;
+    ref?: React.Ref<any>;
   }
   
   export interface DialogContentProps {
     className?: string;
     children?: React.ReactNode;
     forceMount?: boolean;
+    ref?: React.Ref<any>;
   }
   
   export interface DialogTitleProps {
     className?: string;
     children?: React.ReactNode;
+    ref?: React.Ref<any>;
   }
   
   export interface DialogDescriptionProps {
     className?: string;
     children?: React.ReactNode;
+    ref?: React.Ref<any>;
   }
 }
 
@@ -163,6 +171,7 @@ declare module '@radix-ui/react-sheet' {
     className?: string;
     children?: React.ReactNode;
     side?: "top" | "right" | "bottom" | "left";
+    ref?: React.Ref<any>;
   }
 }
 
@@ -182,6 +191,7 @@ declare module '@radix-ui/react-toggle-group' {
     loop?: boolean;
     children?: React.ReactNode;
     className?: string;
+    ref?: React.Ref<any>;
   }
   
   export interface ToggleGroupMultipleProps {
@@ -196,6 +206,7 @@ declare module '@radix-ui/react-toggle-group' {
     loop?: boolean;
     children?: React.ReactNode;
     className?: string;
+    ref?: React.Ref<any>;
   }
   
   export interface ToggleGroupItemProps {
@@ -203,13 +214,14 @@ declare module '@radix-ui/react-toggle-group' {
     disabled?: boolean;
     className?: string;
     children?: React.ReactNode;
+    ref?: React.Ref<any>;
   }
 }
 
 declare module 'recharts' {
   export const ResponsiveContainer: React.ComponentType<any>;
-  export const Tooltip: React.ComponentType<any>;
-  export const Legend: React.ComponentType<any>;
+  export const Tooltip: React.ComponentType<TooltipProps>;
+  export const Legend: React.ComponentType<LegendProps>;
   
   export interface LegendProps {
     payload?: any[];
@@ -234,6 +246,7 @@ declare module '@/components/ui/badge' {
     children?: React.ReactNode;
     className?: string;
     variant?: "default" | "outline" | "secondary" | "destructive";
+    size?: "default" | "sm" | "lg";
   }
 }
 
