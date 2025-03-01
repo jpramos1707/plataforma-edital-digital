@@ -22,4 +22,5 @@ export const formSchema = z.object({
   diversityValue: z.string().min(1, "Este campo é obrigatório"),
 });
 
-export type FormValues = typeof formSchema.shape;
+// Define this type to properly infer the schema types
+export type FormValues = z.infer<typeof formSchema>;

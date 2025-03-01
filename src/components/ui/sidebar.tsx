@@ -1,133 +1,285 @@
 import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
 import {
-  ChevronRight,
-  LayoutDashboard,
-  ListChecks,
-  Settings,
-  User,
-  UserPlus,
+  CheckIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  XIcon,
 } from "lucide-react"
-import { NavLink } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
-interface SidebarProps extends React.HTMLAttributes<HTMLElement> {}
+const Sidebar = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & {
+    collapsed?: boolean
+    className?: string
+  }
+>(({ className, collapsed, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "group relative flex h-screen flex-col border-r bg-secondary/50 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-left-50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-left-50",
+      collapsed ? "w-[5rem]" : "w-[18rem]",
+      className
+    )}
+    {...props}
+  />
+))
+Sidebar.displayName = "Sidebar"
 
-const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
-  ({ className, ...props }, ref) => {
+const SidebarHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "flex h-[4rem] items-center justify-between px-3",
+      className
+    )}
+    {...props}
+  />
+))
+SidebarHeader.displayName = "SidebarHeader"
+
+const SidebarFooter = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("flex h-[4rem] items-center px-3", className)} {...props} />
+))
+SidebarFooter.displayName = "SidebarFooter"
+
+const SidebarTrigger = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<typeof Button>
+>(({ className, ...props }, ref) => {
+  const [isCollapsed, setIsCollapsed] = React.useState(false)
+  return (
+    <Button
+      ref={ref}
+      variant="ghost"
+      size="sm"
+      className={cn(
+        "absolute right-0 top-0 rounded-none border-y border-l bg-background p-1.5 text-muted-foreground hover:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:bg-secondary/50",
+        className
+      )}
+      aria-expanded={!isCollapsed}
+      aria-label="Toggle sidebar"
+      onClick={() => setIsCollapsed(!isCollapsed)}
+      {...props}
+    >
+      <ChevronLeftIcon className="h-4 w-4" />
+      <span className="sr-only">Toggle sidebar</span>
+    </Button>
+  )
+})
+SidebarTrigger.displayName = "SidebarTrigger"
+
+function getSidebarItemStyles({
+  active = false,
+  collapsed = false,
+  variant = "default",
+  size = "default",
+}: {
+  active?: boolean
+  collapsed?: boolean
+  variant?: "default" | "outline"
+  size?: "default" | "sm" | "lg"
+} = {}): string {
+  return cn(
+    "flex items-center gap-2 rounded-md px-3 py-2 hover:bg-muted/60",
+    {
+      "cursor-pointer": true,
+      "justify-center": collapsed,
+      "bg-muted/50": active,
+      "px-2 py-1": size === "sm",
+      "px-4 py-3": size === "lg",
+      "border": variant === "outline",
+    }
+  )
+}
+
+const SidebarContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <ScrollArea ref={ref} className={cn("flex-1 space-y-0.5 p-2", className)} {...props} />
+))
+SidebarContent.displayName = "SidebarContent"
+
+const SidebarNav = React.forwardRef<
+  HTMLElement,
+  React.HTMLAttributes<HTMLElement>
+>(({ className, ...props }, ref) => (
+  <nav
+    ref={ref as React.LegacyRef<HTMLElement>}
+    className={cn(
+      "flex h-full flex-col gap-4 overflow-hidden p-2",
+      className
+    )}
+    {...props}
+  />
+))
+SidebarNav.displayName = "SidebarNav"
+
+const SidebarMenu = React.forwardRef<
+  HTMLUListElement,
+  React.HTMLAttributes<HTMLUListElement>
+>(({ className, ...props }, ref) => (
+  <ul ref={ref} className={cn("m-0 list-none p-0", className)} {...props} />
+))
+SidebarMenu.displayName = "SidebarMenu"
+
+const SidebarSubMenu = React.forwardRef<
+  HTMLDetailsElement,
+  React.HTMLAttributes<HTMLDetailsElement>
+>(({ className, ...props }, ref) => (
+  <details ref={ref} className={cn("group [&_summary::-webkit-details-marker]:hidden", className)} {...props} />
+))
+SidebarSubMenu.displayName = "SidebarSubMenu"
+
+const SidebarSubMenuTrigger = React.forwardRef<
+  HTMLButtonElement,
+  React.HTMLAttributes<HTMLButtonElement>
+>(({ className, ...props }, ref) => (
+  <summary
+    ref={ref}
+    className={cn(
+      "flex cursor-pointer items-center justify-between gap-2 py-1.5 transition-all hover:pl-1",
+      className
+    )}
+    {...props}
+  />
+))
+SidebarSubMenuTrigger.displayName = "SidebarSubMenuTrigger"
+
+const SidebarSubMenuContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "ml-4 mt-1 space-y-1 border-l pl-4 [&:not([hidden])]:animate-in [&:not([hidden])]:fade-in-0",
+      className
+    )}
+    {...props}
+  />
+))
+SidebarSubMenuContent.displayName = "SidebarSubMenuContent"
+
+const SidebarItem = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & {
+    active?: boolean
+    href?: string
+    title?: string
+    icon?: React.ReactNode
+    endIcon?: React.ReactNode
+    badge?: string
+    badgeVariant?: "default" | "outline"
+    badgeSize?: "default" | "sm" | "lg"
+    external?: boolean
+    variant?: "default" | "outline" | string
+    size?: "default" | "sm" | "lg" | string
+    collapsed?: boolean
+  }
+>(
+  (
+    {
+      className,
+      active,
+      href,
+      title,
+      icon,
+      endIcon,
+      badge,
+      badgeVariant = "default",
+      badgeSize = "default",
+      external,
+      variant = "default",
+      size = "default",
+      collapsed,
+      children,
+      ...props
+    },
+    ref
+  ) => {
+    const itemContent = (
+      <>
+        {icon}
+        {!collapsed && (
+          <>
+            <span>{title || children}</span>
+            {endIcon && <span className="ml-auto">{endIcon}</span>}
+            {badge && (
+              <Badge
+                variant={badgeVariant as "default" | "outline"}
+                size={badgeSize as "default" | "sm" | "lg"}
+                className="ml-auto"
+              >
+                {badge}
+              </Badge>
+            )}
+          </>
+        )}
+      </>
+    )
+
     return (
       <div
+        ref={ref}
         className={cn(
-          "flex h-full w-[280px] flex-col border-r bg-background",
+          getSidebarItemStyles({
+            active,
+            collapsed,
+            variant: variant as "default" | "outline",
+            size: size as "default" | "sm" | "lg",
+          }),
           className
         )}
-        ref={ref}
         {...props}
       >
-        <div className="flex-1 space-y-1 py-4">
-          <div className="px-3 py-2">
-            <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-              Menu
-            </h2>
-            <div className="space-y-1">
-              <NavLink
-                to="/dashboard"
-                className={({ isActive }) =>
-                  cn(
-                    "group flex w-full items-center space-x-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                    isActive
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground"
-                  )
-                }
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                <span>Dashboard</span>
-              </NavLink>
-              <NavLink
-                to="/admin"
-                className={({ isActive }) =>
-                  cn(
-                    "group flex w-full items-center space-x-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                    isActive
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground"
-                  )
-                }
-              >
-                <ListChecks className="h-4 w-4" />
-                <span>Admin Panel</span>
-              </NavLink>
-            </div>
-          </div>
-          <div className="px-3 py-2">
-            <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-              Settings
-            </h2>
-            <div className="space-y-1">
-              <Collapsible className="w-full">
-                <CollapsibleTrigger className="group flex w-full items-center justify-between space-x-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground text-muted-foreground">
-                  <span>Team</span>
-                  <ChevronRight className="h-4 w-4 shrink-0 transition-transform duration-200 data-[state=open]:rotate-90" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-1">
-                  <NavLink
-                    to="/settings/team/members"
-                    className={({ isActive }) =>
-                      cn(
-                        "group flex w-full items-center space-x-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                        isActive
-                          ? "bg-accent text-accent-foreground"
-                          : "text-muted-foreground"
-                      )
-                    }
-                  >
-                    <User className="h-4 w-4" />
-                    <span>Members</span>
-                  </NavLink>
-                  <NavLink
-                    to="/settings/team/invites"
-                    className={({ isActive }) =>
-                      cn(
-                        "group flex w-full items-center space-x-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                        isActive
-                          ? "bg-accent text-accent-foreground"
-                          : "text-muted-foreground"
-                      )
-                    }
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    <span>Invites</span>
-                  </NavLink>
-                </CollapsibleContent>
-              </Collapsible>
-              <NavLink
-                to="/settings"
-                className={({ isActive }) =>
-                  cn(
-                    "group flex w-full items-center space-x-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                    isActive
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground"
-                  )
-                }
-              >
-                <Settings className="h-4 w-4" />
-                <span>General</span>
-              </NavLink>
-            </div>
-          </div>
-        </div>
+        {href ? (
+          external ? (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center gap-2"
+            >
+              {itemContent}
+            </a>
+          ) : (
+            <Link to={href} className="flex w-full items-center gap-2">
+              {itemContent}
+            </Link>
+          )
+        ) : (
+          itemContent
+        )}
       </div>
     )
   }
 )
-Sidebar.displayName = "Sidebar"
+SidebarItem.displayName = "SidebarItem"
 
-export { Sidebar }
+export {
+  Sidebar,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarTrigger,
+  SidebarContent,
+  SidebarNav,
+  SidebarMenu,
+  SidebarSubMenu,
+  SidebarSubMenuTrigger,
+  SidebarSubMenuContent,
+  SidebarItem,
+}

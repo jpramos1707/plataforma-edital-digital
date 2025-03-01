@@ -1,4 +1,3 @@
-
 // Type declarations for modules without type definitions
 
 declare module "react" {
@@ -26,12 +25,16 @@ declare module "react" {
   export type TextareaHTMLAttributes<T = Element> = React.TextareaHTMLAttributes<T>;
 }
 
-declare module "react-router-dom" {
-  export const BrowserRouter: React.ComponentType<any>;
-  export const Routes: React.ComponentType<any>;
-  export const Route: React.ComponentType<any>;
-  export const useLocation: () => any;
-  export const useNavigate: () => any;
+// React-router-dom type declarations
+declare module 'react-router-dom' {
+  export function useNavigate(): (to: string, options?: { replace?: boolean, state?: any }) => void;
+  export function useLocation(): { pathname: string, search: string, hash: string, state: any };
+  export function useParams<T extends Record<string, string | undefined>>(): T;
+  export function Link(props: { to: string, className?: string, children: React.ReactNode }): JSX.Element;
+  export function NavLink(props: { to: string, className?: string | ((props: { isActive: boolean }) => string), children: React.ReactNode, end?: boolean }): JSX.Element;
+  export function BrowserRouter({ children }: { children: React.ReactNode }): JSX.Element;
+  export function Routes({ children }: { children: React.ReactNode }): JSX.Element;
+  export function Route({ path, element }: { path: string, element: React.ReactNode }): JSX.Element;
 }
 
 declare module "sonner" {
@@ -105,4 +108,3 @@ declare module "zod" {
 
   export { z };
 }
-
