@@ -11,7 +11,7 @@ const Admin = () => {
       <nav className="bg-white shadow-sm py-4">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <h1 className="text-xl font-semibold text-primary">
-            Área Administrativa - Sistema de Inscrição Cultural
+            Área Administrativa - Inscrição Cultural
           </h1>
           <Button 
             variant="outline"
