@@ -5,10 +5,22 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  base: "/",  // Removendo o subdiretório para corrigir o roteamento
+  base: "/",
   server: {
-    host: "::",
+    host: "localhost",  // Mudando de "::" para "localhost" para melhor compatibilidade
     port: 8080,
+    open: true,  // Abre o navegador automaticamente
+    strictPort: true,  // Falha se a porta já estiver em uso
+    logger: {
+      transports: [
+        {
+          type: 'custom',
+          handler: (message, level) => {
+            console.log(message);
+          }
+        }
+      ]
+    }
   },
   plugins: [
     react(),
@@ -23,4 +35,5 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  logLevel: "info",  // Aumenta o nível de log para mais informações
 }));
