@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
       transports: [
         {
           type: 'custom',
-          handler: (message, level) => {
+          handler: (message: string, level: string) => {
             console.log(message);
           }
         }
