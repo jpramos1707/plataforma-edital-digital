@@ -24,7 +24,7 @@ export const CriteriaSelect = ({ value, onChange, options }: CriteriaSelectProps
   return (
     <Select onValueChange={onChange} value={value}>
       <SelectTrigger className="w-32">
-        <SelectValue placeholder="" />
+        <SelectValue />
       </SelectTrigger>
       <SelectContent>
         {selectOptions.map((option) => (
